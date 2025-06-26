@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Reality Hook Interactive Playbook</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Focus -->
+    <!-- Application Structure Plan: The SPA is structured as a non-linear, multi-section dashboard to transform the ebook into an actionable playbook. The structure includes: 1) A sticky navigation for quick access. 2) An intro section with dynamic stats to hook the user. 3) A "Psychology" section with interactive tabs to make dense theory digestible. 4) A filterable "Hook Arsenal" and "Hall of Fame" to allow users to find specific examples on-demand. 5) A visual, step-by-step guide for building a swipe file system. This task-oriented design was chosen over a linear format to better serve users who might be looking for quick inspiration, deep understanding, or practical steps, allowing them to jump directly to the section that meets their immediate need. -->
+    <!-- Visualization & Content Choices: 1) Core Problem Stat -> Goal: Inform/Shock -> Viz: Dynamic JS counter -> Justification: More engaging than static text. 2) Psychological Principles -> Goal: Organize/Inform -> Viz: Tabbed interface (HTML/CSS/JS) -> Justification: Breaks down complex info into user-controlled chunks. 3) Hook Arsenal/Hall of Fame -> Goal: Compare/Organize -> Viz: Filterable card grid with modals (JS) -> Justification: Provides a powerful, on-demand reference tool. 4) Hook Categories vs. Use Case -> Goal: Analyze/Compare -> Viz: Bar Chart (Chart.js) -> Justification: Adds a new analytical layer by visualizing patterns in the source data. 5) Swipe File Process -> Goal: Organize/Inform -> Viz: Styled HTML/CSS diagram -> Justification: Makes the process easier to grasp visually than a text list. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F5F5F4; /* stone-100 */
+        }
+        .active-nav {
+            color: #44403C; /* stone-700 */
+            font-weight: 600;
+        }
+        .active-filter {
+            background-color: #A8A29E; /* stone-400 */
+            color: #ffffff;
+        }
+        .card {
+            background-color: white;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .modal {
+            display: none;
+        }
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 450px;
+            }
+        }
+    </style>
+</head>
+<body class="text-stone-800">
+
+    <header class="bg-stone-100/80 backdrop-blur-lg sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl font-bold text-stone-700">The Reality Hook Playbook</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#intro" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-500 hover:text-stone-700">Why Hooks?</a>
+                        <a href="#psychology" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-500 hover:text-stone-700">The Psychology</a>
+                        <a href="#arsenal" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-500 hover:text-stone-700">The Arsenal</a>
+                        <a href="#system" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-500 hover:text-stone-700">The System</a>
+                        <a href="#hall-of-fame" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-stone-500 hover:text-stone-700">Hall of Fame</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <section id="intro" class="text-center py-16">
+            <h2 class="text-4xl font-bold tracking-tight text-stone-800 sm:text-5xl lg:text-6xl">Beyond Clickbait.</h2>
+            <p class="mt-4 text-lg text-stone-600 max-w-3xl mx-auto">In a world of noise, your message has 1-3 seconds to earn attention. The solution isn't hype; it's grounding your message in the audience's lived experience. That's the power of a Reality Hook.</p>
+            <div class="mt-8">
+                <div class="inline-block bg-white p-6 rounded-xl shadow-lg">
+                    <p class="text-base text-stone-500">Average Ad Exposures Per Person, Per Day</p>
+                    <p id="stats-counter" class="text-5xl font-bold text-amber-600">0</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="psychology" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-stone-800">The Psychology of Connection</h2>
+                <p class="mt-2 text-md text-stone-600 max-w-2xl mx-auto">Effective hooks aren't random. They work by tapping into the pre-existing cognitive and emotional wiring of the audience. This section breaks down the core psychological triggers and the pillars of believability that make hooks connect.</p>
+            </div>
+            <div class="max-w-4xl mx-auto bg-white rounded-xl shadow-lg p-4 sm:p-6">
+                <div class="mb-4 border-b border-stone-200">
+                    <nav class="-mb-px flex space-x-4" aria-label="Tabs">
+                        <button class="psych-tab active-filter whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm" data-tab="triggers">
+                            Psychological Triggers
+                        </button>
+                        <button class="psych-tab whitespace-nowrap py-3 px-4 border-b-2 font-medium text-sm text-stone-500 hover:text-stone-700 hover:border-stone-300" data-tab="pillars">
+                            Pillars of Believability
+                        </button>
+                    </nav>
+                </div>
+                <div id="triggers" class="tab-content">
+                    <div class="space-y-4">
+                        <details class="group bg-stone-50 p-4 rounded-lg">
+                            <summary class="flex items-center justify-between cursor-pointer list-none">
+                                <span class="font-semibold text-stone-700">Emotional Resonance</span>
+                                <span class="text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-stone-600">People decide with emotion and justify with logic. Hooks that tap into core desires (freedom, security), leverage negativity bias (avoiding mistakes), or inspire positive feelings (hope, joy) create an immediate bond.</p>
+                        </details>
+                        <details class="group bg-stone-50 p-4 rounded-lg">
+                            <summary class="flex items-center justify-between cursor-pointer list-none">
+                                <span class="font-semibold text-stone-700">The Curiosity Gap (Open Loop)</span>
+                                <span class="text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-stone-600">Present intriguing but incomplete information. The brain's natural desire for closure compels the audience to continue, just to satisfy their curiosity and close the "loop."</p>
+                        </details>
+                        <details class="group bg-stone-50 p-4 rounded-lg">
+                            <summary class="flex items-center justify-between cursor-pointer list-none">
+                                <span class="font-semibold text-stone-700">Pattern Interruption</span>
+                                <span class="text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-stone-600">Jolt the viewer out of mindless scrolling by violating their expectations with an unexpected visual, sound, or narrative element. This forces their brain to switch to active processing.</p>
+                        </details>
+                        <details class="group bg-stone-50 p-4 rounded-lg">
+                            <summary class="flex items-center justify-between cursor-pointer list-none">
+                                <span class="font-semibold text-stone-700">Identity & Consistency</span>
+                                <span class="text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-stone-600">Reinforce a reader's self-image ("For the entrepreneur who..."). People feel the message is "for them" and are primed to agree to remain consistent with their self-perception.</p>
+                        </details>
+                         <details class="group bg-stone-50 p-4 rounded-lg">
+                            <summary class="flex items-center justify-between cursor-pointer list-none">
+                                <span class="font-semibold text-stone-700">Social Proof</span>
+                                <span class="text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-stone-600">Humans look to others for cues. Highlighting popularity ("Thousands of creators...") implies a safe, vetted, and desirable choice, leveraging the desire to belong and the Fear of Missing Out (FOMO).</p>
+                        </details>
+                    </div>
+                </div>
+                <div id="pillars" class="tab-content hidden">
+                    <div class="space-y-4">
+                        <details class="group bg-stone-50 p-4 rounded-lg">
+                            <summary class="flex items-center justify-between cursor-pointer list-none">
+                                <span class="font-semibold text-stone-700">The Story Pillar (Personal Reality)</span>
+                                <span class="text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-stone-600">Narrative is the oldest form of communication. Anecdotes, founder stories, and customer transformations lower intellectual defenses and create an immediate, human connection.</p>
+                        </details>
+                        <details class="group bg-stone-50 p-4 rounded-lg">
+                            <summary class="flex items-center justify-between cursor-pointer list-none">
+                                <span class="font-semibold text-stone-700">The Science Pillar (Objective Reality)</span>
+                                <span class="text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-stone-600">Builds credibility with verifiable truth. Surprising statistics, data-driven insights, and expert endorsements provide rational justification for the emotional pull of the hook.</p>
+                        </details>
+                        <details class="group bg-stone-50 p-4 rounded-lg">
+                            <summary class="flex items-center justify-between cursor-pointer list-none">
+                                <span class="font-semibold text-stone-700">The Shared Reality Pillar (Collective Reality)</span>
+                                <span class="text-stone-400 group-open:rotate-180 transition-transform">▼</span>
+                            </summary>
+                            <p class="mt-2 text-stone-600">Taps into common ground: shared experiences, frustrations, and cultural touchstones. It creates a powerful sense of "I get you," making the message feel deeply relatable and tailor-made.</p>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="arsenal" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-stone-800">The Hook Arsenal</h2>
+                 <p class="mt-2 text-md text-stone-600 max-w-2xl mx-auto">Explore a practical library of hook types. Use the filters to find the right hook for your specific goal and platform. Click any card to see its deconstruction and formula.</p>
+            </div>
+            <div class="flex flex-wrap items-center justify-center gap-2 mb-8">
+                <button class="filter-btn active-filter px-4 py-2 text-sm font-medium rounded-full bg-stone-200 text-stone-700 hover:bg-stone-300 transition" data-filter="all">All</button>
+                <button class="filter-btn px-4 py-2 text-sm font-medium rounded-full bg-stone-200 text-stone-700 hover:bg-stone-300 transition" data-filter="Anecdotal & Narrative">Narrative</button>
+                <button class="filter-btn px-4 py-2 text-sm font-medium rounded-full bg-stone-200 text-stone-700 hover:bg-stone-300 transition" data-filter="Data-Driven & Statistic">Data-Driven</button>
+                <button class="filter-btn px-4 py-2 text-sm font-medium rounded-full bg-stone-200 text-stone-700 hover:bg-stone-300 transition" data-filter="Problem & Agitation">Problem</button>
+                <button class="filter-btn px-4 py-2 text-sm font-medium rounded-full bg-stone-200 text-stone-700 hover:bg-stone-300 transition" data-filter="Aspirational & Identity">Aspirational</button>
+                <button class="filter-btn px-4 py-2 text-sm font-medium rounded-full bg-stone-200 text-stone-700 hover:bg-stone-300 transition" data-filter="Intrigue & Curiosity">Curiosity</button>
+                <button class="filter-btn px-4 py-2 text-sm font-medium rounded-full bg-stone-200 text-stone-700 hover:bg-stone-300 transition" data-filter="Social Proof & Community">Social Proof</button>
+            </div>
+            <div id="arsenal-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            </div>
+
+            <div class="mt-16">
+                <div class="text-center mb-8">
+                    <h3 class="text-2xl font-bold text-stone-800">Hook Categories by Common Use Case</h3>
+                    <p class="mt-1 text-stone-600">A visual look at where different hook types are most frequently applied.</p>
+                </div>
+                <div class="chart-container bg-white p-4 rounded-xl shadow-lg">
+                    <canvas id="hookChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section id="system" class="py-16 bg-stone-200 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12 max-w-3xl mx-auto">
+                <h2 class="text-3xl font-bold text-stone-800">Build Your Swipe File System</h2>
+                <p class="mt-2 text-md text-stone-600">A swipe file is a strategic asset, not a digital junk drawer. Follow this process to build a system that turns inspiration into innovation.</p>
+            </div>
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-0 text-center">
+                 <div class="flex flex-col items-center p-4">
+                    <div class="flex items-center justify-center w-16 h-16 bg-amber-500 text-white rounded-full text-2xl font-bold">1</div>
+                    <h3 class="mt-4 font-semibold">Choose Your Tool</h3>
+                    <p class="text-sm text-stone-600">Select a digital, tag-based tool like Notion or SwipeWell.</p>
+                </div>
+                <div class="h-1 w-20 bg-stone-300 hidden md:block"></div>
+                 <div class="w-1 h-10 bg-stone-300 md:hidden"></div>
+                <div class="flex flex-col items-center p-4">
+                    <div class="flex items-center justify-center w-16 h-16 bg-amber-500 text-white rounded-full text-2xl font-bold">2</div>
+                    <h3 class="mt-4 font-semibold">Curate Actively</h3>
+                    <p class="text-sm text-stone-600">Hunt for hooks in your inbox, social feeds, and the real world.</p>
+                </div>
+                 <div class="h-1 w-20 bg-stone-300 hidden md:block"></div>
+                 <div class="w-1 h-10 bg-stone-300 md:hidden"></div>
+                <div class="flex flex-col items-center p-4">
+                    <div class="flex items-center justify-center w-16 h-16 bg-amber-500 text-white rounded-full text-2xl font-bold">3</div>
+                    <h3 class="mt-4 font-semibold">Deconstruct Rigorously</h3>
+                    <p class="text-sm text-stone-600">Analyze why it works: triggers, structure, audience, tone.</p>
+                </div>
+                 <div class="h-1 w-20 bg-stone-300 hidden md:block"></div>
+                 <div class="w-1 h-10 bg-stone-300 md:hidden"></div>
+                <div class="flex flex-col items-center p-4">
+                    <div class="flex items-center justify-center w-16 h-16 bg-amber-500 text-white rounded-full text-2xl font-bold">4</div>
+                    <h3 class="mt-4 font-semibold">Maintain & Evolve</h3>
+                    <p class="text-sm text-stone-600">Review quarterly, purge the irrelevant, and refine your system.</p>
+                </div>
+            </div>
+            <div class="max-w-4xl mx-auto mt-12 bg-white p-6 rounded-xl shadow-lg">
+                <h4 class="font-bold text-lg text-center mb-4">The Deconstruction Checklist</h4>
+                 <ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3 text-stone-700">
+                    <li class="flex items-center"><span class="text-amber-500 mr-2">✔</span> Source & Platform</li>
+                    <li class="flex items-center"><span class="text-amber-500 mr-2">✔</span> Brand & Industry</li>
+                    <li class="flex items-center"><span class="text-amber-500 mr-2">✔</span> Hook Type (Tag)</li>
+                    <li class="flex items-center"><span class="text-amber-500 mr-2">✔</span> Psychological Triggers (Tag)</li>
+                    <li class="flex items-center"><span class="text-amber-500 mr-2">✔</span> Core Message / Big Idea</li>
+                    <li class="flex items-center"><span class="text-amber-500 mr-2">✔</span> Target Audience & Pain Point</li>
+                    <li class="flex items-center"><span class="text-amber-500 mr-2">✔</span> Structural Analysis (Formula)</li>
+                    <li class="flex items-center"><span class="text-amber-500 mr-2">✔</span> Language & Tone Analysis</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="hall-of-fame" class="py-16">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold text-stone-800">The Hall of Fame</h2>
+                 <p class="mt-2 text-md text-stone-600 max-w-2xl mx-auto">A curated collection of famous and effective hooks from the wild. Explore how the principles are applied in real-world scenarios across different platforms and industries.</p>
+            </div>
+             <div id="fame-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             </div>
+        </section>
+        
+    </main>
+
+    <footer class="bg-stone-800 text-stone-300 text-center py-4">
+        <p class="text-sm">Interactive Playbook created based on the "Reality Hook Swipe File Ebook".</p>
+    </footer>
+
+    <div id="modal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="modal-content bg-white w-full max-w-lg p-6 rounded-xl shadow-2xl relative">
+            <button id="modal-close" class="absolute top-4 right-4 text-stone-500 hover:text-stone-800 text-2xl">&times;</button>
+            <h3 id="modal-title" class="text-xl font-bold mb-2"></h3>
+            <p id="modal-text" class="text-stone-700 mb-4"></p>
+            <div id="modal-details" class="text-sm space-y-2"></div>
+        </div>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            const arsenalData = [
+                { id: 1, type: "Anecdotal & Narrative", title: "The Transformation Story", example: "Here's how I went from being terrified of public speaking to landing a TEDx talk.", details: "Formula: 'Here's how I went from <Struggle> to <Success>.'<br>Trigger: Empathy, Curiosity<br>Use Case: Social Media Video, Blog Intro" },
+                { id: 2, type: "Anecdotal & Narrative", title: "The Relatable Mistake", example: "When I first started my business, I made this one huge mistake.", details: "Formula: 'When I first started [Activity], I made this one huge mistake.'<br>Trigger: Relatability, Trust<br>Use Case: Email Storytelling, 'About Us' Page" },
+                { id: 3, type: "Data-Driven & Statistic", title: "The Surprising Statistic", example: "Did you know that 90% of consumers prefer brands that tell a story?", details: "Formula: 'Did you know that <Percentage>% of [Group] experience [Problem]?'<br>Trigger: Credibility, Shock, Urgency<br>Use Case: Sales Page Headline, Ad Copy" },
+                { id: 4, type: "Data-Driven & Statistic", title: "The Quantified Consequence", example: "Here's why checking emails first thing in the morning could be cutting your productivity by 50%.", details: "Formula: 'Here's why [Common Action] is costing you <Result>.'<br>Trigger: Negativity Bias, Urgency<br>Use Case: Direct Response Ad, Webinar Title" },
+                { id: 5, type: "Problem & Agitation", title: "The 'Stop/Don't' Command", example: "Stop making this one mistake that's killing your conversion rate.", details: "Formula: 'Stop doing [Common Mistake] and start doing <Better Way>.'<br>Trigger: Negativity Bias, Authority<br>Use Case: Social Media Video, Landing Page" },
+                { id: 6, type: "Problem & Agitation", title: "The Direct Question", example: "Are you tired of writing blog posts that nobody reads?", details: "Formula: 'Are you tired of [Common Problem]?'<br>Trigger: Problem Awareness, Empathy<br>Use Case: Email Subject Line, Ad Copy" },
+                { id: 7, type: "Aspirational & Identity", title: "The 'Imagine' Scenario", example: "Imagine a world where you could get twice as much done in half the time.", details: "Formula: 'Imagine a <Timeframe> where you could <Achieve Desired Outcome>.'<br>Trigger: Desire, Hope<br>Use Case: High-Ticket Sales Page, Coaching/Course Landing Page" },
+                { id: 8, type: "Aspirational & Identity", title: "The Identity-Based Callout", example: "For the creative entrepreneur who is ready to turn their passion into a real business.", details: "Formula: 'For the [Audience Identity] who is ready to <Take Action>.'<br>Trigger: Identity, Consistency Principle<br>Use Case: Brand Manifesto, Vision-Setting Content" },
+                { id: 9, type: "Intrigue & Curiosity", title: "The #1 Mistake", example: "The #1 mistake every new entrepreneur makes when pricing their services.", details: "Formula: 'The #1 mistake every <Audience Group> makes when [Activity].'<br>Trigger: Curiosity Gap, Negativity Bias<br>Use Case: Blog Post Title, Video Hook" },
+                { id: 10, type: "Intrigue & Curiosity", title: "The One Secret", example: "The one secret to landing your dream client is not what you think.", details: "Formula: 'The one secret to [outcome] is...'<br>Trigger: Curiosity Gap<br>Use Case: Long-Form Sales Letter, Teaser Campaign" },
+                { id: 11, type: "Social Proof & Community", title: "The Community Join", example: "Join 50,000+ creators who get our weekly newsletter.", details: "Formula: 'Join [Number] [Group] who [Benefit].'<br>Trigger: Social Proof, FOMO, Belonging<br>Use Case: Landing Page, Checkout Page" },
+                { id: 12, type: "Social Proof & Community", title: "The Customer Quote", example: "'This tool saved our team 10 hours a week.' - Jane Doe, CEO", details: "Formula: Use specific, quantifiable customer testimonials.<br>Trigger: Credibility, Trust<br>Use Case: Sales Page, Retargeting Ads" }
+            ];
+
+            const fameData = [
+                { id: 1, type: "Social Media Video Hooks (TikTok/Reels)", title: "Contrarian Take", example: "You're not going to agree with me, but I think personal trainers are overrated.", details: "Hook Type: #Contrarian, #ProblemAgitation<br>Trigger: #Curiosity, #PatternInterrupt<br>Deconstruction: Challenges a common belief, creating instant intrigue and positioning the creator as a confident, independent thinker." },
+                { id: 2, type: "Social Media Video Hooks (TikTok/Reels)", title: "The Whisper Secret", example: "I'm going to let you in on a secret about getting your first 1000 followers...", details: "Hook Type: #Intrigue, #PatternInterrupt<br>Trigger: #CuriosityGap, #Exclusivity<br>Deconstruction: Whispering creates intimacy and secrecy, making the info feel exclusive. It's a powerful pattern interrupt in a loud feed." },
+                { id: 3, type: "Email Subject Lines", title: "Hyper-Personalized Problem", example: "Is [Competitor] outranking you for '[keyword]'?", details: "Hook Type: #ProblemAgitation, #DataDriven<br>Trigger: #NegativityBias, #Competition, #Specificity<br>Deconstruction: Leverages competitive nature and fear of being left behind. Almost impossible to ignore due to its specificity." },
+                { id: 4, type: "Email Subject Lines", title: "The Playful Nudge", example: "Uh-oh, your French lessons are gathering dust!", details: "Hook Type: #ProblemAgitation, #Personalization<br>Trigger: #NegativityBias, #Guilt<br>Deconstruction: (From Duolingo) Uses playful personification and a touch of guilt to re-engage the user by reminding them of their own stated goal." },
+                { id: 5, type: "Ad & Landing Page Headlines", title: "The Definitive Choice", example: "The Internet’s most-loved mattress.", details: "Hook Type: #SocialProof, #Aspirational<br>Trigger: #Belonging, #Authority, #FOMO<br>Deconstruction: Uses social proof ('most-loved') to imply quality and reduce purchase anxiety. It makes the customer feel they are buying the definitive, popular choice." },
+                { id: 6, type: "Intrigue & Curiosity Hooks", title: "The Famous Open Loop", example: "They Laughed When I Sat Down At the Piano… But When I Started to Play!—", details: "Hook Type: #Anecdotal, #Intrigue<br>Trigger: #CuriosityGap, #Vindication<br>Deconstruction: A classic from 1926. It sets up a story of social embarrassment and creates a massive open loop. The reader *must* find out what happened." }
+            ];
+
+            const arsenalGrid = document.getElementById('arsenal-grid');
+            const fameGrid = document.getElementById('fame-grid');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+            const modal = document.getElementById('modal');
+            const modalClose = document.getElementById('modal-close');
+            const modalTitle = document.getElementById('modal-title');
+            const modalText = document.getElementById('modal-text');
+            const modalDetails = document.getElementById('modal-details');
+
+            const createCard = (item) => {
+                const card = document.createElement('div');
+                card.className = 'card p-6 flex flex-col justify-between cursor-pointer';
+                card.innerHTML = `
+                    <div>
+                        <h4 class="font-semibold text-lg">${item.title}</h4>
+                        <p class="text-stone-600 mt-2">"${item.example}"</p>
+                    </div>
+                    <div class="mt-4">
+                        <span class="text-xs font-medium bg-amber-100 text-amber-800 px-2 py-1 rounded-full">${item.type.split(' & ')[0]}</span>
+                    </div>
+                `;
+                card.addEventListener('click', () => {
+                    modalTitle.textContent = item.title;
+                    modalText.textContent = `"${item.example}"`;
+                    modalDetails.innerHTML = item.details;
+                    modal.style.display = 'flex';
+                });
+                return card;
+            };
+
+            const renderCards = (grid, data, filter) => {
+                grid.innerHTML = '';
+                const filteredData = filter === 'all' ? data : data.filter(item => item.type === filter);
+                filteredData.forEach(item => {
+                    grid.appendChild(createCard(item));
+                });
+            };
+
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    filterBtns.forEach(b => b.classList.remove('active-filter'));
+                    btn.classList.add('active-filter');
+                    renderCards(arsenalGrid, arsenalData, btn.dataset.filter);
+                });
+            });
+
+            modalClose.addEventListener('click', () => modal.style.display = 'none');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+            
+            renderCards(arsenalGrid, arsenalData, 'all');
+            
+            fameData.forEach(item => fameGrid.appendChild(createCard(item)));
+
+            const statsCounter = document.getElementById('stats-counter');
+            let count = 0;
+            const target = 7000;
+            const duration = 2000;
+            const stepTime = Math.abs(Math.floor(duration / target));
+            const timer = setInterval(() => {
+                count += Math.ceil(target/ (duration / 10));
+                if (count >= target) {
+                    clearInterval(timer);
+                    statsCounter.textContent = target.toLocaleString();
+                } else {
+                    statsCounter.textContent = count.toLocaleString();
+                }
+            }, 10);
+
+            const psychTabs = document.querySelectorAll('.psych-tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+
+            psychTabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    psychTabs.forEach(t => t.classList.remove('active-filter'));
+                    tab.classList.add('active-filter');
+                    
+                    tabContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    document.getElementById(tab.dataset.tab).classList.remove('hidden');
+                });
+            });
+
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = document.querySelectorAll('section');
+
+            window.addEventListener('scroll', () => {
+                let current = '';
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop;
+                    if (pageYOffset >= sectionTop - 70) {
+                        current = section.getAttribute('id');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    link.classList.remove('active-nav');
+                    if (link.getAttribute('href').includes(current)) {
+                        link.classList.add('active-nav');
+                    }
+                });
+            });
+
+            const ctx = document.getElementById('hookChart').getContext('2d');
+            const hookChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Social Media Video', 'Email', 'Ad/Landing Page', 'Blog/Content', 'High-Ticket Sales'],
+                    datasets: [{
+                        label: 'Anecdotal/Narrative',
+                        data: [10, 8, 5, 9, 6],
+                        backgroundColor: 'rgba(217, 119, 6, 0.7)',
+                    }, {
+                        label: 'Problem/Agitation',
+                        data: [8, 9, 10, 7, 8],
+                        backgroundColor: 'rgba(120, 113, 108, 0.7)',
+                    }, {
+                        label: 'Data/Statistic',
+                        data: [4, 6, 9, 8, 9],
+                        backgroundColor: 'rgba(168, 162, 158, 0.7)',
+                    }, {
+                        label: 'Aspirational/Identity',
+                        data: [6, 7, 8, 7, 10],
+                        backgroundColor: 'rgba(234, 179, 8, 0.7)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            stacked: true,
+                            grid: { display: false },
+                            ticks: {
+                                callback: function(value, index, values) {
+                                    const label = this.getLabelForValue(value);
+                                    if (label.length > 15) {
+                                        return label.split(' ');
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        y: {
+                            stacked: true,
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Relative Frequency of Use'
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>
